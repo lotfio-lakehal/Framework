@@ -14,7 +14,6 @@ namespace Silver\Engine;
 
 use Silver\Engine\Ghost\Template;
 
-
 class CLI
 {
     private $cmd = [];
@@ -23,11 +22,11 @@ class CLI
     public function __construct($command)
     {
 
-       if(! isset($command[1])){
-           echo "\n Welcome to SilverEngine framework \n\n";
-           echo " - try use 'php silver help' \n";
-           exit;
-       }
+        if(! isset($command[1])) {
+            echo "\n Welcome to SilverEngine framework \n\n";
+            echo " - try use 'php silver help' \n";
+            exit;
+        }
 
         $this->cmd = $command[1];
         $this->args = $command;
@@ -39,44 +38,73 @@ class CLI
     private function run()
     {
         switch ($this->cmd) {
-            case "g":
-                return $this->make();
+        case "g":
+            return $this->make();
                 break;
 
-            case "migrate":
-                return $this->make();
+        case "migrate":
+            return $this->migrate();
                 break;
 
 
-            default:
-                echo 'Comand not exits';
-                break;
+        default:
+            echo 'Comand not exits';
+            break;
         }
+    }
+
+    private function migrate()
+    {
+        //todo:  need to redone this is not oK!
+        if (empty($this->args[2])) {
+            $path    = ROOT. 'Database/Migrations/';;
+            $files = array_diff(scandir($path), array('.', '..'));
+
+            foreach ($files as $key) {
+                $key = preg_replace('/.php/', '', $key);
+                // exit($path.$key.'.php');
+                include_once $path.$key.'.php';
+                $namespace = "\\Database\\Migrations\\".$key;
+                // exit($namespace);
+                $namespace::up();
+                return 'test1';
+            }
+        }
+        else{
+
+        }
+    }
+
+    private function seed()
+    {
+
     }
 
     private function make()
     {
 
         if ($this->args[2] == 'resource') {
-            foreach (['model', 'view', 'controller'] as $type)
+            foreach (['model', 'view', 'controller'] as $type) {
                 $this->generate($type, $this->args[3]);
-        } elseif (
-            $this->args[2] == 'controller' ||
-            $this->args[2] == 'model' ||
-            $this->args[2] == 'view' ||
-            $this->args[2] == 'helper' ||
-            $this->args[2] == 'facade'
+            }
+        } elseif ($this->args[2] == 'controller' 
+            || $this->args[2] == 'model' 
+            || $this->args[2] == 'view' 
+            || $this->args[2] == 'helper' 
+            || $this->args[2] == 'facade'
         ) {
             $this->generate($this->args[2], $this->args[3]);
         } else {
-            $this->error('Please enter complete command', [
+            $this->error(
+                'Please enter complete command', [
                 'resource',
                 'controller',
                 'model',
                 'view',
                 'helper',
                 'facade',
-            ]);
+                ]
+            );
         }
 
 
@@ -88,71 +116,80 @@ class CLI
         $destination = null;
 
         switch ($type) {
-            case 'model':
-            case 'controller':
-                $template = ROOT . 'App/Templates/' . ucfirst($type) . '.ghost.tpl';
-                $destination = ROOT . 'App/' . ucfirst($type) . 's/' . ucfirst($name) . ucfirst($type) . EXT;
-                break;
-            case 'view':
-                $name = strtolower($name);
-                $name = str_replace('.', '/', $name);
-                $template = ROOT . 'App/Templates/View.ghost.tpl';
-                $destination = ROOT . 'World/' . $name . '.ghost.tpl';
-                break;
-            case 'event':
-                $this->createDirIfNorExists('Events', ROOT . 'App/');
-                $this->createDirIfNorExists('Listeners', ROOT . 'App/');
-                $name = strtolower($name);
-                $name = str_replace('.', '/', $name);
-                $template = ROOT . 'App/Templates/Event.ghost.tpl';
-                $destination = ROOT . 'App/Events/' . $name . EXT;
+        case 'model':
+        case 'controller':
+            $template = ROOT . 'App/Templates/' . ucfirst($type) . '.ghost.tpl';
+            $destination = ROOT . 'App/' . ucfirst($type) . 's/' . ucfirst($name) . ucfirst($type) . EXT;
+            break;
+        case 'view':
+            $name = strtolower($name);
+            $name = str_replace('.', '/', $name);
+              // exit(ROOT);
+            $template = ROOT . 'App/Templates/View.ghost.tpl';
+            $destination = ROOT . 'App/Views/' . $name . '.ghost.tpl';
+            // exit($destination);
+            break;
+        case 'event':
+            $this->createDirIfNorExists('Events', ROOT . 'App/');
+            $this->createDirIfNorExists('Listeners', ROOT . 'App/');
+            $name = strtolower($name);
+            $name = str_replace('.', '/', $name);
+            $template = ROOT . 'App/Templates/Event.ghost.tpl';
+            $destination = ROOT . 'App/Events/' . $name . EXT;
 
-                $template2 = ROOT . 'App/Templates/Listeners.ghost.tpl';
-                $destination2 = ROOT . 'App/Listeners/' . $name . EXT;
-                break;
-            case 'helper':
-                $this->createDirIfNorExists('Helpers', ROOT . 'App/');
-                $name = strtolower($name);
-                $name = str_replace('.', '/', $name);
-                $template = ROOT . 'App/Templates/Helper.ghost.tpl';
-                $destination = ROOT . 'App/Helpers/' . $name . EXT;
-                break;
-            case 'facade':
-                $this->createDirIfNorExists('Facades', ROOT . 'App/');
-                $name = strtolower($name);
-                $name = str_replace('.', '/', $name);
-                $template = ROOT . 'App/Templates/Facade.ghost.tpl';
-                $destination = ROOT . 'App/Facades/' . ucfirst($name) . EXT;
-                break;
-            default:
-                $this->error('Please enter complete command', [
-                    'resource',
-                    'controller',
-                    'model',
-                    'view',
-                ]);
-                break;
+            $template2 = ROOT . 'App/Templates/Listeners.ghost.tpl';
+            $destination2 = ROOT . 'App/Listeners/' . $name . EXT;
+            break;
+        case 'helper':
+            $this->createDirIfNorExists('Helpers', ROOT . 'App/');
+            $name = strtolower($name);
+            $name = str_replace('.', '/', $name);
+            $template = ROOT . 'App/Templates/Helper.ghost.tpl';
+            $destination = ROOT . 'App/Helpers/' . $name . EXT;
+            break;
+        case 'facade':
+            $this->createDirIfNorExists('Facades', ROOT . 'App/');
+            $name = strtolower($name);
+            $name = str_replace('.', '/', $name);
+            $template = ROOT . 'App/Templates/Facade.ghost.tpl';
+            $destination = ROOT . 'App/Facades/' . ucfirst($name) . EXT;
+            break;
+        default:
+            $this->error(
+                'Please enter complete command', [
+                'resource',
+                'controller',
+                'model',
+                'view',
+                'helper',
+                'facade',
+                    ]
+            );
+            break;
         }
 
         if (!file_exists($template)) {
             $this->error('Template is missing');
         }
 
-        if (file_exists($destination) and $force === false)
-            $this->error('File exists!');
-        else
-            $this->generateFile('y', $template, $destination, $type, $name);
+        if($type == 'view' || $type == 'v') {
+            return $this->generateView('y', $template, $destination, $type, $name);
+        }
 
+        if (file_exists($destination) and $force === false) {
+            return $this->error('File exists!');
+        } else {
+            return $this->generateFile('y', $template, $destination, $type, $name);
+        }
     }
 
     private function generateFile($yes, $template, $destination, $type, $name)
     {
-
         // RenderInterface template
-
         $ghost = new Template($template);
         $ghost->set('type', $type);
         $ghost->set('name', $name);
+
         file_put_contents($destination, $ghost->render());
 
         if ($type == 'controller') {
@@ -162,11 +199,36 @@ class CLI
         $this->success("{$type} {$name} successfully created. ({$destination})");
     }
 
+    private function generateView($yes, $template, $destination, $type, $name)
+    {
+        // RenderInterface template
+        $ghost = new Template($template);
+        $ghost->set('type', $type);
+        $ghost->set('name', $name);
+
+        // var_dump($template,$destination);
+        // die();
+        $temp = "{{ extends('layouts.master') }}
+
+#set[content]
+    Welcome to {{ $name }} page
+#end";
+
+        file_put_contents($destination, $temp);
+
+        $this->success("{$type} {$name} successfully created. ({$destination})");
+    }
+
     private function fix_routes($name, $add = true)
     {
 
         $name = ucfirst($name);
-        $routes_path = ROOT . 'App/Routes.php';
+
+        if(is_file(ROOT . 'App'.DS.'Routes'.EXT))
+            $routes_path = ROOT . 'App'.DS.'Routes'.EXT;
+        else
+            $routes_path = ROOT . 'App'.DS.'Routes'.DS.'Web'.EXT;
+
         $content = FILE($routes_path);
         $fh = fopen($routes_path, 'w');
 
@@ -182,12 +244,15 @@ class CLI
             if ($add === true) {
                 fwrite($fh, "\n");
                 fwrite($fh, "// Route for {$name} controller.\n");
-                fwrite($fh, "Route::get('/{$name}', '{$name}@get', 'unguard');\n");
+                fwrite($fh, "Route::get('/".lcfirst($name)."', '{$name}@get', '".lcfirst($name)."', 'public');\n");
                 fclose($fh);
                 $this->success('Route created!');
             }
         } else {
-            $this->error('Can not open App/Routes.php.');
+            if(is_file(ROOT . 'App'.DS.'Routes'.EXT))
+                $this->error('Can not open App/Routes.php.');
+            else
+                $this->error('Can not open App/Routes/Web.php.');
         }
     }
 
@@ -209,12 +274,11 @@ class CLI
 
     private function createDirIfNorExists($name, $path)
     {
-        if (is_dir($path . $name))
+        if (is_dir($path . $name)) {
             return false;
-        else
+        } else {
             mkdir($path . ucfirst($name), 0766);
+        }
     }
 
 }
-
-

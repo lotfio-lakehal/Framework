@@ -9,10 +9,15 @@
 return [
     'debug'         => true,
     'app_key'       => 'mysupersecurekey',
+    'port'          => false,
 
 
     'middlewares'   => [
 
+    ],
+
+    'routes' => [
+      
     ],
 
     'databases' => [
@@ -22,9 +27,9 @@ return [
             'service'       => true,
             'driver'        => 'mysql',
             'hostname'      => 'localhost',
-            'username'      => 'silver',
-            'password'      => 'secret',
-            'basename'      => 'youtdatabase',
+            'username'      => 'root',
+            'password'      => '',
+            'basename'      => 'test1',
             'limit_request' => 25,
         ]
     ],

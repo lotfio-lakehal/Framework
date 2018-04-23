@@ -10,10 +10,9 @@
  * @link      https://github.com/SilverEngine/Framework
  */
 
-namespace Silver\Core\Blueprints;
+namespace App\Routes;
 
-interface RenderInterface
-{
-    public function render();
-    public function data();
-}
+use Silver\Core\Route;
+
+Route::get('/', 'Welcome@welcome', 'home', 'public');
+Route::get('/demo', 'Welcome@demo', 'home', 'public');

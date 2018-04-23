@@ -10,10 +10,14 @@
  * @link      https://github.com/SilverEngine/Framework
  */
 
-namespace App;
+namespace Silver\Core\Bootstrap\Facades;
 
-use Silver\Core\Route;
+use Silver\Support\Facade;
 
-Route::get('/', 'Welcome@welcome', 'home');
-
-Route::get('/demo', 'Welcome@demo', 'unguard');
+class Response extends Facade
+{
+    protected static function getClass()
+    {
+        return 'Silver\Http\Response';
+    }
+}

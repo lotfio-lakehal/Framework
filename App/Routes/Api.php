@@ -10,14 +10,12 @@
  * @link      https://github.com/SilverEngine/Framework
  */
 
-namespace App\Jail;
+namespace App\Routes;
 
-class Master
-{
+use Silver\Core\Route;
 
-    public static function protect()
-    {
-
-    }
-
-}
+Route::group(['prefix' => 'api'], function(){
+  Route::get('/', function(){
+    return 'Welcome to the api';
+  });
+});
